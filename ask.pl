@@ -1,4 +1,8 @@
 :- consult("./utilities/relations").
+:- consult("./utilities/list_operations").
 :- consult("./answer").
 
-ask(Question) :- answer(Question).
+ask(Question) :-
+  [H|T] = Question,
+  H,T,
+  answer(Question).

@@ -19,7 +19,6 @@ log_if_present([H|T]) :-
   is_data(H) ;
   log_if_present(T).
 
-
 is_data(X) :-
   data(Y),
   member(X, Y),
