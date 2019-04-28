@@ -2,6 +2,6 @@
 :- consult("./utilities/list_operations").
 :- consult("./answer").
 
-ask(Question) :-
+ask(Question, Explanation) :-
   atomize(Atomized, Question),
-  answer(Atomized).
+  answer(Atomized, Explanation).
