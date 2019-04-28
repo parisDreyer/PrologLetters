@@ -3,6 +3,5 @@
 :- consult("./answer").
 
 ask(Question) :-
-  [H|T] = Question,
-  H,T,
-  answer(Question).
+  atomize(Atomized, Question),
+  answer(Atomized).
