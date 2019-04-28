@@ -3,8 +3,20 @@
 :- consult("data").
 
 answer(Question, Explanation) :-
-    not(log_if_present(Question, Explanation)),
-    log_to_data(Question, Explanation).
+  try_explain(Question, Explanation)
+  ;
+  log_to_data(Question, Explanation).
+
+without_last([X|Xs], [X|WithoutLast]) :-
+  without_last(Xs, WithoutLast).
+
+try_explain(Question, Explanation) :-
+  already_logged(Question, Out),
+  flatten(Out, Flat),
+  without_last(Flat, FlatWithoutLast),
+  write(Flat),
+  write(FlatWithoutLast),
+  atomize(Explanation, FlatWithoutLast).
 
 log_to_data(Question, Explanation) :-
   log_to_data(Question),
@@ -19,18 +31,18 @@ log_to_data(Question) :-
       close(Stream),
     consult("data").
 
-log_if_present([H|T], [ExplanationItem|RestOfExplanation]) :-
-  is_data(H, ExplanationItem) ;
-  log_if_present(T, RestOfExplanation).
+already_logged([H|T], [ExplanationItem|RestOfExplanation]) :-
+  is_data(H, ExplanationItem)
+  ;
+  already_logged(T, RestOfExplanation).
 
-data(X, Y) :- data(Z), X = Z, Y = X.
-
-is_data(X, Explanation) :-
-  data(Y, Explanation),
-  member(X, Y)
-  .
+% data(X, Y) :- data(Z), X = Z, Y = X.
+data(X, Y) :- data(X), Y = X.
 
 is_data(X, Explanation) :-
   data(Y, Explanation),
-  subset_with_replacement(X, Y)
-  .
+  member(X, Y).
+
+is_data(X, Explanation) :-
+  data(Y, Explanation),
+  subset_with_replacement(X, Y).
