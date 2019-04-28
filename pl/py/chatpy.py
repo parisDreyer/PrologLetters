@@ -8,18 +8,18 @@ class ChatPy:
         self.temp_user_input_store = []
         self.prolog = Prolog()
         self.prolog.consult("./ask.pl")
+        self.explanation = "Explanation"
 
     def main(self):
         while self.user_input.upper() != "EXIT":
             self.user_input = raw_input("exit, or:> ")
-            output = self.consider_input(self.prep_for_prolog_ask())
-            print(output)
+            print(self.consider_input(self.prep_for_prolog_ask()))
             print("\n______________________________________________")
 
     def prep_for_prolog_ask(self):
         prepped = "', '".join(str(self.user_input).translate(None, string.punctuation).lower().split(' '))
         if len(prepped) > 0:
-            prepped = "ask([\'{}\'], Explanation)".format(prepped)
+            prepped = "ask([\'" + prepped + "\'], " + self.explanation + ")"
         return prepped
 
     def consider_input(self, prolog_ask):
@@ -31,18 +31,14 @@ class ChatPy:
         return answer
 
     def decide_output(self, prolog_ask):
-        generated_output_count = 0
         response = ""
         for dictionary_object in self.prolog.query(prolog_ask):
-            # for entry in dictionary_object.itervalues():
-            generated_output_count += 1
-            response += str(dictionary_object)
+            response += " ".join(dictionary_object.get(self.explanation, [""])) + " "
         joined_input_store = " ".join(self.temp_user_input_store)
-        if generated_output_count == 0 and len(joined_input_store) > lstm_character_level_chatbot.maxlen:
-            print("in lstm generator:\n")
+        if len(response) == 0 or len(joined_input_store) > lstm_character_level_chatbot.maxlen:
             response = lstm_character_level_chatbot.response(joined_input_store)
             self.temp_user_input_store = []             # reset temp_user_input_store
         else:
-            print("incrementing user input")
             self.temp_user_input_store.append(self.user_input)
+            response = lstm_character_level_chatbot.response(response)
         return response

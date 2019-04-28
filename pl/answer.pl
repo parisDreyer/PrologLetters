@@ -2,21 +2,25 @@
 :- consult("utilities/relations").
 :- consult("data").
 
-answer(Question, Explanation) :-
-  try_explain(Question, Explanation)
-  ;
-  log_to_data(Question, Explanation).
+% max(X,Y,Z) :-
+%     (  X =< Y
+%     -> Z = Y
+%     ;  Z = X
+%      ).
 
-without_last([X|Xs], [X|WithoutLast]) :-
-  without_last(Xs, WithoutLast).
+answer(Question, Explanation) :-
+  (
+    try_explain(Question, Output)
+    -> Explanation = Output
+    ;
+    log_to_data(Question, Explanation)
+  ).
 
 try_explain(Question, Explanation) :-
   already_logged(Question, Out),
   flatten(Out, Flat),
-  without_last(Flat, FlatWithoutLast),
-  write(Flat),
-  write(FlatWithoutLast),
-  atomize(Explanation, FlatWithoutLast).
+  atomize(Flat, Explanation),
+  write(Explanation).
 
 log_to_data(Question, Explanation) :-
   log_to_data(Question),
@@ -31,12 +35,17 @@ log_to_data(Question) :-
       close(Stream),
     consult("data").
 
-already_logged([H|T], [ExplanationItem|RestOfExplanation]) :-
-  is_data(H, ExplanationItem)
-  ;
-  already_logged(T, RestOfExplanation).
+already_logged([], Explanation) :-
+  Explanation = [],
+  fail.
+already_logged([H|T], Explanation) :-
+  (
+    is_data(H, ExplanationItem)
+    -> Explanation = ExplanationItem
+    ;
+    already_logged(T, Explanation)
+  ).
 
-% data(X, Y) :- data(Z), X = Z, Y = X.
 data(X, Y) :- data(X), Y = X.
 
 is_data(X, Explanation) :-
