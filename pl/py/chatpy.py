@@ -1,5 +1,9 @@
+import sys
+sys.path.append('./py/lstm_character_level_chatbot')
+sys.path.append('./py/lstm_word_level_chatbot')
 from pyswip import Prolog   # https://pypi.org/project/pyswip/
 import lstm_character_level_chatbot
+import lstm_word_level_chatbot
 import string
 
 class ChatPy:
@@ -37,6 +41,7 @@ class ChatPy:
         joined_input_store = " ".join(self.temp_user_input_store)
         if len(response) == 0 or len(joined_input_store) > lstm_character_level_chatbot.maxlen:
             response = lstm_character_level_chatbot.response(joined_input_store)
+            response += lstm_word_level_chatbot.response(joined_input_store)
             self.temp_user_input_store = []             # reset temp_user_input_store
         else:
             self.temp_user_input_store.append(self.user_input)

@@ -45,7 +45,7 @@ loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights("./py/lstm_character_level_chatbot/model.h5")
 
 def response(user_input_text, diversity = 1.2, response_length = 100): # Prints generated text.
-        response = ''
+        answer = ''
         sentence = user_input_text
         if len(sentence) >= maxlen: # prevent errors in the expected input vector
             sentence = sentence[:maxlen]
@@ -54,9 +54,9 @@ def response(user_input_text, diversity = 1.2, response_length = 100): # Prints 
             for t, char in enumerate(sentence):
                 x_pred[0, t, char_indices[char]] = 1.
             next_char = indices_char[sample(loaded_model.predict(x_pred, verbose=0)[0], diversity)]
-            response += next_char
+            answer += next_char
             sentence = sentence[1:] + next_char
-        return response
+        return answer
 
 def sample(preds, temperature=1.0):
     # helper function to sample an index from a probability array

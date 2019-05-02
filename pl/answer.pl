@@ -46,7 +46,10 @@ already_logged([H|T], Explanation) :-
     already_logged(T, Explanation)
   ).
 
+
 data(X, Y) :- data(X), Y = X.
+:- multifile data/1.
+data([""]).
 
 is_data(X, Explanation) :-
   data(Y, Explanation),
