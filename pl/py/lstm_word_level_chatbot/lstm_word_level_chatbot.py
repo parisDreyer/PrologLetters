@@ -32,12 +32,12 @@ sys.stderr = stderr
 EXTRA_SYMBOLS = ['<PAD>', '<START>', '<UNK>', '<EOS>']
 VOCAB_SIZE = 10000
 # load json and create model
-json_file = open('./py/lstm_character_level_chatbot/model.json', 'r')
+json_file = open('./py/lstm_word_level_chatbot/model.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 # load weights into new model
-loaded_model.load_weights("./py/lstm_character_level_chatbot/model.h5")
+loaded_model.load_weights("./py/lstm_word_level_chatbot/model.h5")
 
 def response(user_input_text, diversity = 1.2, response_length = 100):
     # formatting user input to vector encoding -- start again in the morning
@@ -47,7 +47,9 @@ def response(user_input_text, diversity = 1.2, response_length = 100):
     print(np.array([x]).shape)
     print(x)
     print("buggy next:")
-    gen = generate_seq(x, response_length, temperature=diversity)
+    b = random.choice(x)
+    seed = b[0, :]
+    gen = generate_seq(seed, response_length, temperature=diversity)
     return decode(i2w, gen[response_length:])
 
 def decode(i2w, seq):
@@ -75,7 +77,7 @@ def format_words(input_text):
         representing the mapping from words to indices (2) a list of strings representing the mapping from indices to
         words.
     """
-    x_data = input_text
+    x_data = EXTRA_SYMBOLS[1] + "\n" + input_text + "\n" + EXTRA_SYMBOLS[3]
     x = [text_to_word_sequence(x) for x in x_data.split('\n') if len(x) > 0] # Creating the vocabulary set with the most common words (leaving room for PAD, START, UNK)
     dist = FreqDist(np.hstack(x))
     x_vocab = dist.most_common(VOCAB_SIZE - len(EXTRA_SYMBOLS))
@@ -98,15 +100,15 @@ def to_categorical(batch, num_classes): # Converts a batch of length-padded inte
         out[i, :, :] = keras.utils.to_categorical(seq, num_classes=num_classes)
     return out
 
-def generate_seq(x, size, temperature=1.0): # :return: A list of integers representing a samples sentence
-
-    seed = np.insert(x, 0, 1)
+def generate_seq(seed, size, temperature=1.0): # :return: A list of integers representing a samples sentence
+    seed = np.insert(seed, 0, 1)
     ls = seed.shape[0]
-    # Due to the way Keras RNNs work, we feed the model a complete sequence each time. At first it's just the seed,
-    # zero-padded to the right length. With each iteration we sample and set the next character.
+    print("Shape of seed")
+    print(seed.shape)
     tokens = np.concatenate([seed, np.zeros(size - ls)])
+
     for i in range(ls, size):
-        probs = loaded_model.predict(tokens)#[None,:])
+        probs = loaded_model.predict(tokens[None,:])
         # Extract the i-th probability vector and sample an index from it
         # next_token = sample_logits(probs[0, i-1, :], temperature=temperature)
         # tokens[i] = next_token
@@ -120,7 +122,7 @@ def sample_logits(preds, temperature=1.0): # "Sample an index from a logit vecto
     preds = preds - logsumexp(preds)
     return np.random.choice(len(preds), 1, p=np.exp(preds))
 
-def batch_pad(x, batch_size = 1, min_length=3, add_eos=False, extra_padding=0):
+def batch_pad(x, batch_size = 2, min_length=3, add_eos=False, extra_padding=0):
     """
     Takes a list of integer sequences, sorts them by lengths and pads them so that sentences in each batch have the
     same length.
