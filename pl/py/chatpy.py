@@ -7,6 +7,7 @@ import lstm_character_level_chatbot
 import lstm_word_level_chatbot
 import lstm_sentence_level_chatbot
 import string
+import util
 
 class ChatPy:
     def __init__(self):
@@ -15,6 +16,7 @@ class ChatPy:
         self.prolog = Prolog()
         self.prolog.consult("./ask.pl")
         self.explanation = "Explanation"
+        self.MAX_INPUT_LENGTH = 40
 
     def main(self):
         while self.user_input.upper() != "EXIT":
@@ -41,11 +43,11 @@ class ChatPy:
         for dictionary_object in self.prolog.query(prolog_ask):
             response += " ".join(dictionary_object.get(self.explanation, [""])) + " "
         joined_input_store = " ".join(self.temp_user_input_store)
-        if len(response) == 0 or len(joined_input_store) > lstm_character_level_chatbot.maxlen:
-            response += " " + lstm_character_level_chatbot.response(joined_input_store)
-            response += " " + lstm_word_level_chatbot.response(joined_input_store)
-            response += " " + lstm_sentence_level_chatbot.response(joined_input_store)
+        if len(response) == 0 or len(joined_input_store) > self.MAX_INPUT_LENGTH:
+            response += " {}".format(util.format_bot_output(lstm_character_level_chatbot.response(joined_input_store)))
+            response += " {}".format(util.format_bot_output(lstm_word_level_chatbot.response(joined_input_store)))
+            response += " {}".format(util.format_bot_output(lstm_sentence_level_chatbot.response(joined_input_store)))
             self.temp_user_input_store = []             # reset temp_user_input_store
         else:
-            self.temp_user_input_store.append(self.user_input)
+            self.temp_user_input_store.append(self.user_input.translate(None, string.punctuation).lower())
         return response

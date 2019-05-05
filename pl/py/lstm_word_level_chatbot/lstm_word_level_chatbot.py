@@ -21,8 +21,6 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
-from keras.preprocessing import sequence
-from nltk import FreqDist
 import random
 import util
 
@@ -33,22 +31,12 @@ loaded_model = util.load_from_disk(json_name = './py/lstm_word_level_chatbot/mod
 
 def response(user_input_text, diversity = 1.2, response_length = 100):
     # formatting user input to vector encoding -- start again in the morning
-    x, w21, i2w = util.format_words(user_input_text)
+    x = util.format_words(user_input_text)
     x = util.batch_pad(x, add_eos=True)
     b = random.choice(x)
     seed = b[0, :]
     gen = generate_seq(seed, response_length, temperature=diversity)
-    return util.decode(i2w, gen[response_length:])
-
-def idx2word(idx, i2w, pad_idx):
-    sent_str = [str()]*len(idx)
-    for i, sent in enumerate(idx):
-        for word_id in sent:
-            if word_id == pad_idx:
-                break
-            sent_str[i] += i2w[str(word_id.item())] + " "
-        sent_str[i] = sent_str[i].strip()
-    return sent_str
+    return util.decode(gen[response_length:])
 
 def to_categorical(batch, num_classes): # Converts a batch of length-padded integer sequences to a one-hot encoded sequence
     b, l = batch.shape
@@ -62,7 +50,6 @@ def generate_seq(seed, size, temperature=1.0): # :return: A list of integers rep
     seed = np.insert(seed, 0, 1)
     ls = seed.shape[0]
     tokens = np.concatenate([seed, np.zeros(size - ls)])
-
     for i in range(ls, size):
         probs = loaded_model.predict(tokens[None,:])
         next_token = util.sample_logits(probs[0, i-1, :], temperature=temperature) # Extract the i-th probability vector and sample an index from it

@@ -21,3 +21,5 @@ data([resulting,is,weirder,sentences]).
 data([okay,here,goes,eliza]).
 data([this,free,spirit,more,than,just,friends]).
 data([we,have,work,to,do]).
+data([question,mark]).
+data([dont,ask,dont,tell]).

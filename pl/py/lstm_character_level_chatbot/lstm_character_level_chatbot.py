@@ -12,41 +12,41 @@ sys.stderr = open('/dev/null', 'w')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # silence tensorflow output
 np.seterr(divide='ignore') # silence divide by zero warning
 # =================================
-from keras.callbacks import LambdaCallback
-from keras.models import Sequential
+# from keras.callbacks import LambdaCallback
+# from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
-from keras.optimizers import RMSprop
+# from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
-
 import random
 import util
 os.environ['KMP_DUPLICATE_LIB_OK']='True' # https://github.com/openai/spinningup/issues/16
 sys.stdout = stdout # return stdout to the terminal
 sys.stderr = stderr
 
-path = get_file(
+PATH = get_file(
     'nietzsche.txt',
     origin='https://s3.amazonaws.com/text-datasets/nietzsche.txt')
-with io.open(path, encoding='utf-8') as f:
-    text = f.read().lower()
+TEXT = ''
+with io.open(PATH, encoding='utf-8') as f:
+    TEXT = f.read().lower()
 
-chars = sorted(list(set(text)))
-char_indices = dict((c, i) for i, c in enumerate(chars))
-indices_char = dict((i, c) for i, c in enumerate(chars))
-maxlen = 40
+CHARS = sorted(list(set(TEXT)))
+CHAR_INDICES = dict((c, i) for i, c in enumerate(CHARS))
+INDICES_CHARS = dict((i, c) for i, c in enumerate(CHARS))
+MAX_LENGTH = 40
 loaded_model = util.load_from_disk(json_name='./py/lstm_character_level_chatbot/model.json', h5_name='./py/lstm_character_level_chatbot/model.h5')
 
 def response(user_input_text, diversity = 1.2, response_length = 100): # Prints generated text.
         answer = ''
         sentence = user_input_text
-        if len(sentence) >= maxlen: # prevent errors in the expected input vector
-            sentence = sentence[:maxlen]
+        if len(sentence) >= MAX_LENGTH: # prevent errors in the expected input vector
+            sentence = sentence[:MAX_LENGTH]
         for i in range(response_length):
-            x_pred = np.zeros((1, maxlen, len(chars)))
+            x_pred = np.zeros((1, MAX_LENGTH, len(CHARS)))
             for t, char in enumerate(sentence):
-                x_pred[0, t, char_indices[char]] = 1.
-            next_char = indices_char[sample(loaded_model.predict(x_pred, verbose=0)[0], diversity)]
+                x_pred[0, t, CHAR_INDICES[char]] = 1.
+            next_char = INDICES_CHARS[sample(loaded_model.predict(x_pred, verbose=0)[0], diversity)]
             answer += next_char
             sentence = sentence[1:] + next_char
         return answer
