@@ -17,7 +17,5 @@ data([accessing,data,throws,an,error,occasionally]).
 data([give,me,problems]).
 data([always,working]).
 data([honking,for,no,reason]).
-data([,,,,,,,,,,,,,,,,b,,randomchoicex]).
-data([,,,,,,,,,,,,,,,,if,bshape1,,20]).
-data([,,,,,,,,,,,,,,,,,,,,seed,,b020]).
 data([resulting,is,weirder,sentences]).
+data([okay,here,goes,eliza]).

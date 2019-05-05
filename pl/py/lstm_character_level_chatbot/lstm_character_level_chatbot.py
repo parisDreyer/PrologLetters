@@ -14,13 +14,13 @@ np.seterr(divide='ignore') # silence divide by zero warning
 # =================================
 from keras.callbacks import LambdaCallback
 from keras.models import Sequential
-from keras.models import model_from_json
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
 
 import random
+import util
 os.environ['KMP_DUPLICATE_LIB_OK']='True' # https://github.com/openai/spinningup/issues/16
 sys.stdout = stdout # return stdout to the terminal
 sys.stderr = stderr
@@ -35,14 +35,7 @@ chars = sorted(list(set(text)))
 char_indices = dict((c, i) for i, c in enumerate(chars))
 indices_char = dict((i, c) for i, c in enumerate(chars))
 maxlen = 40
-
-# load json and create model
-json_file = open('./py/lstm_character_level_chatbot/model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
-loaded_model.load_weights("./py/lstm_character_level_chatbot/model.h5")
+loaded_model = util.load_from_disk(json_name='./py/lstm_character_level_chatbot/model.json', h5_name='./py/lstm_character_level_chatbot/model.h5')
 
 def response(user_input_text, diversity = 1.2, response_length = 100): # Prints generated text.
         answer = ''

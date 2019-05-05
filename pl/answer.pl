@@ -1,5 +1,6 @@
 :- consult("utilities/list_operations").
 :- consult("utilities/relations").
+:- consult("eliza").
 :- consult("data").
 
 % max(X,Y,Z) :-
@@ -19,8 +20,14 @@ answer(Question, Explanation) :-
 try_explain(Question, Explanation) :-
   already_logged(Question, Out),
   flatten(Out, Flat),
-  atomize(Flat, Explanation),
-  write(Explanation).
+  atomize(Flat, Logic),
+  eliza_questions(Question, Logic, Explanation).
+
+eliza_questions(Question, Logic, Explanation) :-
+  eliza(Question, ElizaOutput1),
+  eliza(Logic, ElizaOutput2),
+  append(ElizaOutput1, ElizaOutput2, ElizaOutputs),
+  append(ElizaOutputs, [], Explanation).
 
 log_to_data(Question, Explanation) :-
   log_to_data(Question),

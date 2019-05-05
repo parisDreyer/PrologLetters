@@ -12,7 +12,6 @@ sys.stderr = open('/dev/null', 'w')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # silence tensorflow output
 np.seterr(divide='ignore') # silence divide by zero warning
 # =================================
-from keras.models import model_from_json
 from keras.preprocessing.text import text_to_word_sequence
 import keras.utils
 import keras.backend as K
@@ -25,35 +24,24 @@ from keras.utils.data_utils import get_file
 from keras.preprocessing import sequence
 from nltk import FreqDist
 import random
+import util
+
 os.environ['KMP_DUPLICATE_LIB_OK']='True' # https://github.com/openai/spinningup/issues/16
 sys.stdout = stdout # return stdout to the terminal
 sys.stderr = stderr
 
 EXTRA_SYMBOLS = ['<PAD>', '<START>', '<UNK>', '<EOS>']
 VOCAB_SIZE = 10000
-# load json and create model
-json_file = open('./py/lstm_word_level_chatbot/model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
-loaded_model.load_weights("./py/lstm_word_level_chatbot/model.h5")
+loaded_model = util.load_from_disk(json_name = './py/lstm_word_level_chatbot/model.json', h5_name = './py/lstm_word_level_chatbot/model.h5')
 
 def response(user_input_text, diversity = 1.2, response_length = 100):
     # formatting user input to vector encoding -- start again in the morning
     x, w21, i2w = format_words(user_input_text)
     x = batch_pad(x, add_eos=True)
-    print("printing x")
-    print(np.array([x]).shape)
-    print(x)
-    print("buggy next:")
     b = random.choice(x)
     seed = b[0, :]
     gen = generate_seq(seed, response_length, temperature=diversity)
-    return decode(i2w, gen[response_length:])
-
-def decode(i2w, seq):
-    return ' '.join(i2w[id] for id in seq)
+    return util.decode(i2w, gen[response_length:])
 
 def idx2word(idx, i2w, pad_idx):
     sent_str = [str()]*len(idx)
@@ -103,24 +91,13 @@ def to_categorical(batch, num_classes): # Converts a batch of length-padded inte
 def generate_seq(seed, size, temperature=1.0): # :return: A list of integers representing a samples sentence
     seed = np.insert(seed, 0, 1)
     ls = seed.shape[0]
-    print("Shape of seed")
-    print(seed.shape)
     tokens = np.concatenate([seed, np.zeros(size - ls)])
 
     for i in range(ls, size):
         probs = loaded_model.predict(tokens[None,:])
-        # Extract the i-th probability vector and sample an index from it
-        # next_token = sample_logits(probs[0, i-1, :], temperature=temperature)
-        # tokens[i] = next_token
+        next_token = util.sample_logits(probs[0, i-1, :], temperature=temperature) # Extract the i-th probability vector and sample an index from it
+        tokens[i] = next_token
     return [int(t) for t in tokens]
-
-def sample_logits(preds, temperature=1.0): # "Sample an index from a logit vector."
-    preds = np.asarray(preds).astype('float64')
-    if temperature == 0.0:
-        return np.argmax(preds)
-    preds = preds / temperature
-    preds = preds - logsumexp(preds)
-    return np.random.choice(len(preds), 1, p=np.exp(preds))
 
 def batch_pad(x, batch_size = 2, min_length=3, add_eos=False, extra_padding=0):
     """
