@@ -19,16 +19,18 @@ template([w(you),s(X),w(i), s(Y)], [s([why,do,you]),s(X),w(i), s(Y), w('?')]).
 template([w(you),s(X),w(me)], [s([why, do, i]),s(X), w(you), w('?')]).
 template([s(X), w(is), s(Y)], [s([why, is, there]), s(Y), s(X), w('?')]).
 template([s(X), w(are), s(Y)], [s([why, are, there]), s(Y), s(X), w('?')]).
-template([s([what, is]), w(_), w(name)], [s([i, am, terrible, with, names])]).
+template([s([what, is]), w(_), w(name)], Out) :-
+  choose([
+    [s([i, am, terrible, with, names])],
+    [s([i, am, sorry, my, name, recognition, subroutine, is, not, implemented, yet])]
+  ], Out).
 template([s(X)], Out) :-
-    choose(
-        [
-           [s([why, do, you, say]), s(X), w('?')],
-           [s([what, do, you, mean, by]), s(X), w('?')],
-           [s([could, you, explain, more, to, me, about]), s(X), w('?')],
-           [s([i, do, not, know, enough, about, that, to, agree, or, disagree, with, you])]
-    	],
-    	Out).
+  choose([
+    [s([why, do, you, say]), s(X), w('?')],
+    [s([what, do, you, mean, by]), s(X), w('?')],
+    [s([could, you, explain, more, to, me, about]), s(X), w('?')],
+    [s([i, do, not, know, enough, about, that, to, agree, or, disagree, with, you])]
+  ], Out).
 
 match([],[]).
 match([Item|Items],[Word|Words]) :-

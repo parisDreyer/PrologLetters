@@ -19,3 +19,5 @@ data([always,working]).
 data([honking,for,no,reason]).
 data([resulting,is,weirder,sentences]).
 data([okay,here,goes,eliza]).
+data([this,free,spirit,more,than,just,friends]).
+data([we,have,work,to,do]).

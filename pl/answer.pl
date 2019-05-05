@@ -25,8 +25,10 @@ try_explain(Question, Explanation) :-
 
 eliza_questions(Question, Logic, Explanation) :-
   eliza(Question, ElizaOutput1),
+  atomize(ElizaOutput1, ParsedOutput1),
   eliza(Logic, ElizaOutput2),
-  append(ElizaOutput1, ElizaOutput2, ElizaOutputs),
+  atomize(ElizaOutput2, ParsedOutput2),
+  append(ParsedOutput1, ParsedOutput2, ElizaOutputs),
   append(ElizaOutputs, [], Explanation).
 
 log_to_data(Question, Explanation) :-
@@ -52,7 +54,6 @@ already_logged([H|T], Explanation) :-
     ;
     already_logged(T, Explanation)
   ).
-
 
 data(X, Y) :- data(X), Y = X.
 :- multifile data/1.
