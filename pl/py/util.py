@@ -54,7 +54,6 @@ def load_from_disk(json_name = 'model.json', h5_name = 'model.h5'):
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
     loaded_model.load_weights(h5_name)
-    print("Loaded model from disk")
     return loaded_model
 
 def decode(seq):
@@ -122,6 +121,8 @@ def batch_pad(x, batch_size=2, min_length=3, add_eos=False, extra_padding=0):
 #     return sent_str
 
 def format_bot_output(text):
+    if len(text) == 0:
+        return text
     ascii_parsed = "".join([i if ord(i) < 128 else "" for i in text]).split(" ")
     return " ".join([translate_word_from_sym(w) for w in ascii_parsed])
 

@@ -33,6 +33,8 @@ def response(user_input_text, diversity = 1.2, response_length = 100):
     # formatting user input to vector encoding -- start again in the morning
     x = util.format_words(user_input_text)
     x = util.batch_pad(x, add_eos=True)
+    if len(x) == 0:
+        return
     b = random.choice(x)
     seed = b[0, :]
     gen = generate_seq(seed, response_length, temperature=diversity)

@@ -16,10 +16,12 @@ HIDDEN_LAYER_SIZE = 16
 LSTM_CAPACITY = 256
 EMBEDDING_SIZE = 300
 
-def response(user_input, diversity=1.2, response_length=100):
+def response(user_input, diversity=1.2, response_length=16):
     response_text = ""
     x = util.format_words(user_input)
     x = util.batch_pad(x, add_eos=True)
+    if len(x) == 0:
+        return
     b = random.choice(x)
     z, _ = encoder.predict(b)
     z = z[None, 0, :]

@@ -23,3 +23,14 @@ data([this,free,spirit,more,than,just,friends]).
 data([we,have,work,to,do]).
 data([question,mark]).
 data([dont,ask,dont,tell]).
+data([takes,exactly,one,argument]).
+data([how,fast]).
+data([what]).
+data([raises]).
+data([know]).
+data([still,executed,synchronously,huh]).
+data([boris]).
+data([feverishly,changing]).
+data([banana]).
+data([chesblue]).
+data([moon]).
